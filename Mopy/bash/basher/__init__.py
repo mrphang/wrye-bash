@@ -2017,7 +2017,7 @@ class SaveDetails(_SashDetailsPanel):
         #--Change masters?
         if changeMasters:
             saveInfo.header.masters = self.uilist.GetNewMasters()
-            saveInfo.header.writeMasters(saveInfo.getPath())
+            saveInfo.write_masters()
             saveInfo.setmtime(prevMTime)
         #--Done
         try:
