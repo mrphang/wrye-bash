@@ -2483,6 +2483,7 @@ class InstallersData(_DataStore):
         packConflicts = []
         bsaConflicts = []
         from . import BSAInfos, bsaInfos # YAK!
+        bsa_ind = BSAInfos.active_bsa_index
         getBSAOrder = lambda tup: BSAInfos.active_bsa_index(tup[1])
         # Calculate bsa conflicts
         if showBSA:
@@ -2492,7 +2493,14 @@ class InstallersData(_DataStore):
             # Create list of active BSA files in srcInstaller
             src_bsas = [bsaInfos[x] for x in
                         _get_active_bsas(srcInstaller.data_sizeCrc)]
-            srcBSAContents = [y.assets for y in src_bsas]
+            # map srcInstaller bsa assets to bsas (assign the assets to
+            # higher loading bsa)
+            src_bsa_to_assets, src_assets = {}, set()
+            for b in sorted(src_bsas, key=lambda b: bsa_ind(b.name), reverse=True):
+                b_assets = b.assets - src_assets
+                if b_assets:
+                    src_bsa_to_assets[b] = b_assets
+                    src_assets |= b_assets
             # Create a list of all active BSA Files except the ones in srcInstaller
             activeBSAFiles = []
             for package, installer in self.iteritems():
@@ -2504,7 +2512,7 @@ class InstallersData(_DataStore):
             for package, bsaPath, bsa_info in sorted(activeBSAFiles,key=getBSAOrder):
                 curAssets = bsa_info.assets
                 curConflicts = bolt.sortFiles(
-                    [x for x in curAssets if x in srcBSAContents])
+                    [x for x in curAssets if x in src_assets])
                 if curConflicts: bsaConflicts.append((package, bsaPath, curConflicts))
         # Calculate esp/esm conflicts
         for package, installer in self.sorted_pairs():
@@ -2525,6 +2533,11 @@ class InstallersData(_DataStore):
                 for package, bsa, srcFiles in bsaConflicts:
                     order = BSAInfos.active_bsa_index(bsa)
                     srcBSAOrder = BSAInfos.active_bsa_index(src_bsas[0].name)
+                    src_bsa_to_confl = collections.defaultdict(list)
+                    for confl in srcFiles:
+                        for i, j in src_bsa_to_assets.iteritems():
+                            if confl in j:
+                                src_bsa_to_confl[i].append(confl)
                     # Print partitions
                     if showLower and (order > srcBSAOrder) != isHigher:
                         isHigher = (order > srcBSAOrder)
