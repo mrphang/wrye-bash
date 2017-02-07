@@ -111,5 +111,9 @@ default_tweaks = {
             [(u'iLocation Y', u'5'), (u'iLocation X', u'5')]))]),
     u'Window Mode Top left, 5-60 [Skyrim].ini': OrderedDict(
         [(u'Display', OrderedDict(
-            [(u'iLocation Y', u'5'), (u'iLocation X', u'60')]))])
+            [(u'iLocation Y', u'5'), (u'iLocation X', u'60')]))]),
+    u'Invalidate, Allow loose files [Skyrim].ini': OrderedDict(
+        [(u'Archive', OrderedDict([(u'bInvalidateOlderFiles', u'1')]))]),
+    u'Invalidate, Disallow loose files ~Default [Skyrim].ini': OrderedDict(
+        [(u'Archive', OrderedDict([(u'bInvalidateOlderFiles', u'0')]))]),
 }
